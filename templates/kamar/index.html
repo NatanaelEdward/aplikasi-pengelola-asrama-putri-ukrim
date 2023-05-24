@@ -1,0 +1,80 @@
+{% extends 'dashboard.html' %}
+{% block title %}Data Kamar{% endblock %}
+{% block content %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% comment %} <a class="btn btn-success mb-2" href="{% url 'postKamar' %}"><i class="fa fa-save"></i> Tambah Kamar</a> {% endcomment %}
+    
+
+
+    <div class="card">
+        
+        <div class="card-body">
+            <table class="table " id="example" width='100%'>
+                <thead >
+                    <tr>
+                        <th>Nomor Kamar</th>
+                        <th>Status Kamar</th>
+                        <th>Ditempati</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kamar in data_kamar %}
+                        <tr>
+                            <td>{{ kamar.nomor_kamar }}</td>
+                            <td>
+                                {% if kamar.status_kamar == 'Tersedia' %}
+                                    Tersedia
+                                {% else %}
+                                    Terpakai
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if kamar.mahasiswas_set.all %}
+                                   
+                                    {% for mahasiswa in kamar.mahasiswas_set.all %}
+                                    <p>{{ mahasiswa.nama }} | {{ mahasiswa.nim }}</p>
+                                    {% endfor %}
+                                    
+                                {% else %}
+                                    <p>-</p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-info"
+                                   href="{% url 'updateKamar' kamar.nomor_kamar %}"><i class="fas fa-edit"></i>Edit</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                            <tr>
+                                <td style="text-align: center;" colspan="4"><b>Data Kosong</b></td>
+                            </tr>
+                    {% endfor %}
+                            
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $('#example').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'pdf',
+                            exportOptions: {
+                                columns: ':not(:last-child)' // Exclude last column from export (Aksi column)
+                            }
+                        }
+                    ]
+                });
+            });
+        </script>
+
+    {% endblock %}

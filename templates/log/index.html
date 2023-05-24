@@ -1,0 +1,38 @@
+{% extends 'dashboard.html' %}
+{% block title %}Log Activity{% endblock %}
+{% block content %}
+    {% comment %} <a class="btn btn-success mb-2" href="{% url 'tambahPengelola' %}"><i class="fa fa-save"></i> Tambah Pengelola</a>  {% endcomment %}
+    <div class="card">
+        <div class="card-body">
+            <table class="table" id="example" width='100%'>
+                <thead>
+                    <tr>
+                        <th>Nomor</th>
+                        <th>Tabel</th>
+                        <th>Pengelola</th>
+                        <th>Aktivitas</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   
+                        <tr>
+                            <td>1</td>
+                            <td>Mahasiswa</td>
+                            <td>Pengelola 1</td>
+                            <td>Menambah Mahasiswa dengan NIM 2142101889</td>
+                            <td>23 Oktober 2023</td>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            {% comment %} {{ $books->withQueryString()->links('pagination::bootstrap-5') }} {% endcomment %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable();
+        });
+    </script>
+{% endblock %}

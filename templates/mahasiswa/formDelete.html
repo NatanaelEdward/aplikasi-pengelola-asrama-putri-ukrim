@@ -1,0 +1,35 @@
+{% extends 'dashboard.html' %}
+{% block title %}Hapus Mahasiswa{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="pt-2 card-label">Hapus Data Mahasiswa</h2>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{% url 'postHapusMahasiswa' data_mahasiswa.nim %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="">NIM</label>
+                <input class="form-control disabled"  readonly value="{{data_mahasiswa.nim}}" type="text" name="nim" id="nim" />
+            </div>
+            <div class="form-group">
+                <label for="">Nama</label>
+                <input class="form-control disabled"  readonly value="{{data_mahasiswa.nama}}" type="text" name="nama" id="nama" />
+            </div>
+            <button class="btn btn-primary" type="button" onclick="location.href='{% url 'mahasiswa' %}'"><i
+                    class="fas fa-angle-left"></i> Kembali</button>
+            <button class="btn btn-danger" type="submit">
+                <i class="fa fa-save"></i> Hapus
+            </button>
+        </form>
+
+    </div>
+</div>
+<style>
+    .disabled {
+        background-color: #e9ecef; /* or any other desired color */
+      }
+</style>
+{% endblock %}

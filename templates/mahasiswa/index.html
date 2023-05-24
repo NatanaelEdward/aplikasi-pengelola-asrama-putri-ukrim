@@ -1,0 +1,94 @@
+{% extends 'dashboard.html' %}
+{% block title %}Data Mahasiswa{% endblock %}
+{% block content %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <a class="btn btn-success mb-2" href="{% url 'tambahMahasiswa' %}"><i class="fa fa-save"></i> Tambah Mahasiswa</a>
+    <div class="card">
+        <div class="card-body">
+            <table class="table" id="example" width='100%'>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>NIM</th>
+                        <th>Nama</th>
+                        <th>Tempat, Tanggal Lahir</th>
+                        <th>Jurusan</th>
+                        <th>Nomor Telepon</th>
+                        <th>Nomor Kamar</th>
+                        <th>Status Pembayaran</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mahasiswa in data_mahasiswa %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ mahasiswa.nim }}</td>
+                            <td>{{ mahasiswa.nama }}</td>
+                            <td>{{ mahasiswa.tempat_lahir }}, {{ mahasiswa.tanggal_lahir }}</td>
+                            <td>{{ mahasiswa.jurusan }}</td>
+                            <td>{{ mahasiswa.no_telepon }}</td>
+                            <td>{{ mahasiswa.nomor_kamar.nomor_kamar }}</td>
+                            <td>Lunas</td>
+                            <td>
+                                <a class="btn btn-info" href="{% url 'updateMahasiswa' mahasiswa.nim %}"><i class="fas fa-edit"></i> Edit</a>
+                                <a class="btn btn-danger"
+                                   href="{% url 'hapusMahasiswa' mahasiswa.nim %}"><i class="fas fa-trash"></i> Hapus</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% comment %} if empty <tr>
+                            <td style="text-align: center;" colspan="4"><b>Data Kosong</b></td>
+                    </tr> {% endcomment %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            {% comment %} {{ $books->withQueryString()->links('pagination::bootstrap-5') }} {% endcomment %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+  var table = $('#example').DataTable({
+    colReorder: true,
+  });
+
+  $('#example thead th').each(function() {
+    var column = table.column($(this));
+    var columnHeader = $(this);
+
+    if (columnHeader.data('searchable') !== false) {
+      columnHeader.on('click', function() {
+        if (!columnHeader.hasClass('sorting_disabled')) {
+          if (columnHeader.hasClass('filtering')) {
+            column.search('').draw();
+            columnHeader.removeClass('filtering');
+          } else {
+            columnHeader.addClass('filtering');
+          }
+        }
+      });
+
+      var input = $('<input type="text" class="form-control form-control-sm" placeholder="Search">')
+        .appendTo(columnHeader)
+        .on('keyup change clear', function() {
+          if (column.search() !== this.value) {
+            column.search(this.value).draw();
+          }
+        });
+
+      columnHeader.wrapInner('<span class="filterable"></span>');
+    }
+  });
+});
+
+
+        
+    </script>
+{% endblock %}

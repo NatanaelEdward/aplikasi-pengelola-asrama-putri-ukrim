@@ -1,0 +1,77 @@
+{% extends 'dashboard.html' %}
+{% block title %}Tambah Mahasiswa{% endblock %}
+{% block content %}
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="pt-2 card-label">Tambah Mahasiswa</h2>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'postMahasiswa' %}">
+                 {% csrf_token %}
+                <div class="form-group">
+                    <label for="">NIM</label>
+                    <input class="form-control " value="" type="text"
+                        name="nim" id="nim" />
+                </div>
+                <div class="form-group">
+                    <label for="">Nama</label>
+                    <input class="form-control " value=""
+                        type="text" name="nama" id="nama" />
+                </div>
+                <div class="form-group">
+                    <label for="">Tempat Lahir</label>
+                    <input class="form-control " value=""
+                        type="text" name="tempat_lahir" id="tempat_lahir" />
+                </div>
+                <div class="form-group">
+                    <label for="tanggal_lahir">Tanggal Lahir</label>
+                    <input class="form-control" type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{date_field_name|date:'%d-%m-%Y'}}">
+                  </div>
+                
+                
+                <div class="form-group">
+                    <label for="">Nomor Telepon</label>
+                    <input class="form-control" value=""
+                        type="text" name="no_telepon" id="no_telepon" />
+                </div>
+
+                <div class="form-group">
+                    <label for="">Nomor Kamar</label>
+                    <select class="form-control" name="nomor_kamar">
+                        {% for kamar in kamars %}
+                            {% if kamar.status_kamar == 'Tersedia' %}
+                                <option value="{{ kamar.nomor_kamar }}">{{ kamar.nomor_kamar }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="">Jurusan</label>
+                    <select class="form-control"
+                    name="jurusan" id="jurusan" >
+                        <option value="" disabled selected>Jurusan</option>
+                        {% for jurusan in mahasiswa.PILIHAN_JURUSAN %}
+                            <option value="{{ jurusan.0 }}">{{ jurusan.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" type="button" onclick="location.href='{% url 'mahasiswa' %}'"><i class="fas fa-angle-left"></i> Kembali</button>
+                <button class="btn btn-success" type="submit">
+                    <i class="fa fa-save"></i> Simpan
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

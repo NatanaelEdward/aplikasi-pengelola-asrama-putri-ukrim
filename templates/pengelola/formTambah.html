@@ -1,0 +1,51 @@
+{% extends 'dashboard.html' %}
+{% block title %}Tambah Pengelola{% endblock %}
+{% block content %}
+        <div class="container mt-3">
+            <h3>Tambah Pengelola</h3>
+            <hr>
+            <form method="POST" action="{% url 'postPengelola' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text"
+                           class="form-control"
+                           name="nama"
+                           id="nama"
+                           placeholder="Masukkan nama lengkap"
+                           value="{{ pengelola.nama }}">
+                </div>
+                <div class="form-group">
+                    <label for="tanggal_lahir">Tanggal Lahir</label>
+                    <input type="date"
+                           class="form-control"
+                           name="tanggal_lahir"
+                           id="tanggal_lahir"
+                           placeholder="Masukkan tanggal lahir"
+                           value="{{ pengelola.tanggal_lahir }}">
+                </div>
+                <div class="form-group">
+                    <label for="alamat">Alamat</label>
+                    <textarea class="form-control"
+                              name="alamat"
+                              id="alamat"
+                              rows="3"
+                              placeholder="Masukkan alamat">{{ pengelola.alamat }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="no_telepon">Nomor Telepon</label>
+                    <input type="text"
+                           class="form-control"
+                           name="no_telepon"
+                           id="no_telepon"
+                           placeholder="Masukkan nomor telepon"
+                           value="{{ pengelola.no_telepon }}">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <a href="{% url 'pengelola' %}" class="btn btn-danger">Batal</a>
+                </div>
+            </form>
+        </div>
+
+{% endblock %}
