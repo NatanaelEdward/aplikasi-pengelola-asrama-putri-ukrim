@@ -46,11 +46,19 @@ class Mahasiswas(models.Model):
         Kamars, on_delete=models.SET_NULL, null=True, blank=True)
 
 class Pengelolas(models.Model):
+    pilihan_jk = (
+        ("Laki-laki", "laki-laki"),
+        ("Perempuan", "perempuan")
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
-    nama = models.CharField(max_length=255)
-    tanggal_lahir = models.DateField(default=datetime.date.today)
-    alamat = models.TextField()
-    no_telepon = models.CharField(max_length=15)
+    nama = models.CharField(max_length=255,null=True)
+    nik = models.CharField(max_length=20,null=True)
+    jenis_kelamin = models.CharField(max_length=20,choices = pilihan_jk,default=None,null=True)
+    tempat_lahir = models.CharField(max_length=255,null=True,blank=True)
+    tanggal_lahir = models.DateField(default=None,null=True,blank=True)
+    alamat = models.TextField(max_length=255,null=True)
+    no_telepon = models.CharField(max_length=15,null=True)
 
 class Pendaftarans(models.Model):
     id_pendaftaran = models.AutoField(primary_key=True)

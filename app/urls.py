@@ -14,6 +14,8 @@ urlpatterns =[
     path('profil/',views.profil,name='profil'),
     path('logout/', views.logout_view, name='logout'),
 
+    path('register', views.registerPengelola, name='registerPengelola'),
+
     path('log',views.log,name='log'),
 
     path('mahasiswa-report/', mahasiswa_report_view, name='mahasiswa_report'),

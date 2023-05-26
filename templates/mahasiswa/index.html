@@ -1,6 +1,7 @@
 {% extends 'dashboard.html' %}
 {% block title %}Data Mahasiswa{% endblock %}
 {% block content %}
+<h1>Data Mahasiswa</h1>
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -31,10 +32,16 @@
                             <td>{{ forloop.counter }}</td>
                             <td>{{ mahasiswa.nim }}</td>
                             <td>{{ mahasiswa.nama }}</td>
-                            <td>{{ mahasiswa.tempat_lahir }}, {{ mahasiswa.tanggal_lahir }}</td>
+                            <td>{{ mahasiswa.tempat_lahir }}, {{ mahasiswa.tanggal_lahir|date:'d F Y' }}</td>
                             <td>{{ mahasiswa.jurusan }}</td>
                             <td>{{ mahasiswa.no_telepon }}</td>
-                            <td>{{ mahasiswa.nomor_kamar.nomor_kamar }}</td>
+                            <td>
+                              {% if mahasiswa.nomor_kamar %}
+                                {{ mahasiswa.nomor_kamar.nomor_kamar }}
+                              {% else %}
+                                -
+                              {% endif %}
+                            </td>
                             <td>Lunas</td>
                             <td>
                                 <a class="btn btn-info" href="{% url 'updateMahasiswa' mahasiswa.nim %}"><i class="fas fa-edit"></i> Edit</a>
@@ -54,41 +61,56 @@
         </div>
     </div>
     <script>
-        $(document).ready(function() {
-  var table = $('#example').DataTable({
-    colReorder: true,
-  });
-
-  $('#example thead th').each(function() {
-    var column = table.column($(this));
-    var columnHeader = $(this);
-
-    if (columnHeader.data('searchable') !== false) {
-      columnHeader.on('click', function() {
-        if (!columnHeader.hasClass('sorting_disabled')) {
-          if (columnHeader.hasClass('filtering')) {
-            column.search('').draw();
-            columnHeader.removeClass('filtering');
-          } else {
-            columnHeader.addClass('filtering');
-          }
-        }
-      });
-
-      var input = $('<input type="text" class="form-control form-control-sm" placeholder="Search">')
-        .appendTo(columnHeader)
-        .on('keyup change clear', function() {
-          if (column.search() !== this.value) {
-            column.search(this.value).draw();
+      $(document).ready(function() {
+        var table = $('#example').DataTable({
+          dom: 'Bfrtip',
+          buttons: [
+            {
+              extend: 'pdf',
+              text: 'PDF',
+              title: 'Data Mahasiswa',
+              customize: function(doc) {
+                doc.defaultFileName = 'data_mahasiswa';
+                // Remove the "Aksi" column from the PDF document
+                doc.content[1].table.body.forEach(function(row) {
+                  row.splice(8, 1); // Remove the "Aksi" column (index 8)
+                });
+              }
+            }
+          ]
+        });
+      
+        $('#example thead th').each(function(index) {
+          var column = table.column($(this));
+          var columnHeader = $(this);
+      
+          if (columnHeader.data('searchable') !== false) {
+            columnHeader.on('click', function() {
+              if (!columnHeader.hasClass('sorting_disabled')) {
+                if (columnHeader.hasClass('filtering')) {
+                  column.search('').draw();
+                  columnHeader.removeClass('filtering');
+                } else {
+                  columnHeader.addClass('filtering');
+                }
+              }
+            });
+      
+            if (index !== 8) {  // Exclude the "Aksi" column (index 8) from searching
+              var input = $('<input type="text" class="form-control form-control-sm" placeholder="Search">')
+                .appendTo(columnHeader)
+                .on('keyup change clear', function() {
+                  if (column.search() !== this.value) {
+                    column.search(this.value).draw();
+                  }
+                });
+      
+              columnHeader.wrapInner('<span class="filterable"></span>');
+            }
           }
         });
-
-      columnHeader.wrapInner('<span class="filterable"></span>');
-    }
-  });
-});
-
-
+      });
+      
         
     </script>
 {% endblock %}

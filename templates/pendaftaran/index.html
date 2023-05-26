@@ -1,6 +1,7 @@
 {% extends 'dashboard.html' %}
 {% block title %}Data Pendaftaran{% endblock %}
 {% block content %}
+<h1> Data Pendaftaran </h1>
     {% comment %} <a class="btn btn-success mb-2" href="{% url 'tambahPengelola' %}"><i class="fa fa-save"></i> Tambah Pengelola</a>  {% endcomment %}
     <div class="card">
         <div class="card-body">
@@ -22,19 +23,23 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ pendaftaran.nim.nim }}</td>
-                            <td>{{ pendaftaran.tanggal_daftar }}</td>
-                            <td>{{ pendaftaran.tanggal_masuk }}</td>
-                            <td>{{ pendaftaran.tanggal_keluar }}</td>
+                            <td>{{ pendaftaran.tanggal_daftar|date:'d F Y' | default:'-' }}</td>
+                            <td>{{ pendaftaran.tanggal_masuk|date:'d F Y' | default:'-' }}</td>
+                            <td>{{ pendaftaran.tanggal_keluar|date:'d F Y' | default:'-' }}</td>
                             <td>
                                 {% if pendaftaran.bukti_bayar %}
                                     <a href="{{ pendaftaran.bukti_bayar.url }}" target="_blank">
-                                        <img  style="width: 50%; height: auto;" class='bukti-bayar-img' src="{{ pendaftaran.bukti_bayar.url }}" alt="Bukti Bayar">
+                                        <img style="width: 50%;
+                                                    height: auto"
+                                             class='bukti-bayar-img'
+                                             src="{{ pendaftaran.bukti_bayar.url }}"
+                                             alt="Bukti Bayar">
                                     </a>
                                 {% else %}
                                     Bukti Bayar Belum di Upload.
                                 {% endif %}
                             </td>
-                            <td>{{ pendaftaran.pengelola.nama }}</td>
+                            <td>{{ pendaftaran.pengelola.nama | default:'-'}}</td>
                             <td>
                                 <a class="btn btn-info"
                                    href="{% url 'updatePendaftaran' pendaftaran.id_pendaftaran %}"><i class="fas fa-edit"></i>Lengkapi Pendaftaran</a>
@@ -55,17 +60,42 @@
         </div>
     </div>
     <script>
-        $(document).ready(function () {
-            $('#example').DataTable({
+        $(document).ready(function() {
+            var table = $('#example').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     {
                         extend: 'pdf',
-                        exportOptions: {
-                            columns: ':not(:last-child)' // Exclude last column from export (Aksi column)
+                        text: 'PDF',
+                        title: 'Data Pendaftaran',
+                        customize: function(doc) {
+                            doc.defaultFileName = 'data_pendaftaran';
+                            // Remove the "Aksi" column from the PDF document
+                            doc.content[1].table.body.forEach(function(row) {
+                                row.splice(7, 1); // Remove the "Aksi" column (index 7)
+                            });
                         }
                     }
                 ]
+            });
+
+            $('#example thead th').each(function(index) {
+                var column = table.column($(this));
+                var columnHeader = $(this);
+
+                if (columnHeader.data('searchable') !== false) {
+                    if (index !== 5 && index !== 7) { // Exclude the "Bukti Bayar" column (index 5) and "Aksi" column (index 7) from searching
+                        var input = $('<input type="text" class="form-control form-control-sm" placeholder="Search">')
+                            .appendTo(columnHeader)
+                            .on('keyup change clear', function() {
+                                if (column.search() !== this.value) {
+                                    column.search(this.value).draw();
+                                }
+                            });
+
+                        columnHeader.wrapInner('<span class="filterable"></span>');
+                    }
+                }
             });
         });
     </script>

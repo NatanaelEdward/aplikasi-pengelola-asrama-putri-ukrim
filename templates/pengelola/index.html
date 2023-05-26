@@ -1,52 +1,125 @@
 {% extends 'dashboard.html' %}
-{% block title %}Data Pengelola{% endblock %}
 {% block content %}
-    {% comment %} @if ($message = Session::get('success'))
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5><i class="icon fas fa-check"></i> Sukses!</h5>
-            {{ $message }}
-        </div>
-    @endif {% endcomment %}
-    {% comment %} <a class="btn btn-success mb-2" href="{% url 'tambahPengelola' %}"><i class="fa fa-save"></i> Tambah Pengelola</a>  {% endcomment %}
+    <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+        <!--begin::Entry-->
+        <div class="d-flex flex-column-fluid">
+            <!--begin::Container-->
+            <div class="container-fluid">
+                <div class="row mt-5">
+                    <div class="col-md-12">
+                        <div class="card card-custom">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <ul class="nav nav-light-danger nav-bold nav-pills">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-toggle="tab" href="#mhs">
+                                            <span class="nav-text d-none d-md-block">Data Pengelola</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="d-flex align-items-center">
+                                    {% for pengelola in data_pengelola %}
+                                    <a class="btn btn-primary" href="{% url 'updatePengelola' %}"><i class="fas fa-edit"></i> Edit Data</a>
+                                    {% comment %} <a class="btn btn-primary" href="{% url 'registerPengelola' %}">Register New Pengelola</a> {% endcomment %}
 
-    <div class="card">
-        
-        <div class="card-body">
-            <table class="table" width='100%'>
-                <thead>
-                    <tr>
-                        <th>Nama Pengelola</th>
-                        <th>Tanggal Lahir</th>
-                        <th>Alamat</th>
-                        <th>Nomor Telepon</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  {% for pengelola in data_pengelola %}
-                        <tr>
-                            <td>{{pengelola.nama}} </td>
-                            <td>{{pengelola.tanggal_lahir}}</td>
-                            <td>{{pengelola.alamat}}</td>
-                            <td>{{pengelola.no_telepon}} </td>
-                            <td>
-                                <a class="btn btn-info" href="{% url 'updatePengelola' pengelola.user %}"><i
-                                        class="fas fa-edit"></i> Edit</a> 
-                            </td>
-                        </tr>
-                    {% endfor %}
-                        {% comment %} if empty <tr>
-                            <td style="text-align: center;" colspan="4"><b>Data Kosong</b></td>
-                        </tr> {% endcomment %}
-                    
-                </tbody>
-            </table>
 
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                
+
+                                <div class="row">
+                                    <!-- detail informasi dari staff -->
+                                    
+                                    <div class="col-lg-3 col-sm-12">
+                                     
+                                        <img src="media/Img/avatar.jpg" class="border border-4 border-dark" alt="Image" width="200" height="200">
+                                        
+                                    </div>
+                                    <div class="col-lg-6 col-sm-12">
+                                        <div id="myTabContent" class="tab-content">
+                                            <div id="mhs" class="tab-pane active in">
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-borderless">
+                                                        <thead>
+                                                        </thead>
+                                                        <tbody>
+                                                            
+                                                            <tr>
+                                                                <td width="40%">Nama</td>
+                                                                <td width="10%">&nbsp;:&nbsp;</td>
+                                                                <td width="50%">{{ pengelola.nama }}</td>
+                                                            </tr>
+                                                            
+                                                            <tr>
+                                                                <td>NIK</td>
+                                                                <td>&nbsp;:&nbsp;</td>
+                                                                <td>{{ pengelola.nik }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Tempat, Tanggal Lahir</td>
+                                                                <td>&nbsp;:&nbsp;</td>
+                                                                <td>{{ pengelola.tempat_lahir }}, {{ pengelola.tanggal_lahir|date:'d F Y' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Jenis Kelamin</td>
+                                                                <td>&nbsp;:&nbsp;</td>
+                                                                <td>{{ pengelola.jenis_kelamin }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Alamat</td>
+                                                                <td>&nbsp;:&nbsp;</td>
+                                                                <td>{{ pengelola.alamat }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Nomor Telepon</td>
+                                                                <td>&nbsp;:&nbsp;</td>
+                                                                <td>{{ pengelola.no_telepon }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% comment %} <div class="col-lg-6 col-sm-12">
+                                        <img src="media/Img/Asri.jpg" class="border border-4 border-dark" alt="Image" width="200" height="200">
+                                    </div> {% endcomment %}
+                                </div>
+                                
+                            </div>
+                            <div class="card-footer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end::Container-->
         </div>
-        <div class="card-footer">
-            {% comment %} {{ $books->withQueryString()->links('pagination::bootstrap-5') }} {% endcomment %}
-        </div>
+        <!--end::Entry-->
     </div>
-
+    <!--end::Content-->
+    <!--begin::Footer-->
+    <div class="footer bg-white py-4 d-flex flex-lg-column" id="kt_footer">
+        <!--begin::Container-->
+        <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <!--begin::Copyright-->
+            <div class="text-dark order-2 order-md-1">
+                <span class="text-muted font-weight-bold mr-2">2023©</span>
+                <a href="https://ukrim.ac.id"
+                   target="_blank"
+                   class="text-dark-75 text-hover-primary">UKRIM</a>
+            </div>
+            <!--end::Copyright-->
+            <!--begin::Nav-->
+            <div class="nav nav-dark"></div>
+            <!--end::Nav-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <!--end::Footer-->
+</div>
+<!--end::Wrapper-->
+</div>
+<!--end::Page-->
+</div>
 {% endblock %}

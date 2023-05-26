@@ -11,9 +11,9 @@ from django.http import JsonResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from django.http import HttpResponse
-from django.template.loader import render_to_string
+from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
-import os
+import uuid
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
@@ -77,6 +77,27 @@ def mahasiswa_report_view(request):
         response['Content-Disposition'] = 'attachment; filename="mahasiswa_report.pdf"'
 
     return response
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+from .models import Pengelolas
+
+@login_required
+def registerPengelola(request):
+    if request.method == 'POST':
+        nama = request.POST.get('nama')
+        nik = request.POST.get('nik')
+
+        user = request.user
+        pengelola = Pengelolas(user=user, nama=nama, nik=nik)
+        pengelola.save()
+
+        return redirect('pengelola')
+    else:
+        return render(request, 'pengelola/register.html')
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -241,6 +262,13 @@ def postUpdateMahasiswa(request):
             if nomor_kamar:
                 kamar = Kamars.objects.get(nomor_kamar=nomor_kamar)
 
+            # Check if the mahasiswa is already assigned to a different kamar
+            if mahasiswa.nomor_kamar and mahasiswa.nomor_kamar != kamar:
+                previous_kamar = mahasiswa.nomor_kamar
+                previous_kamar.nim = None
+                previous_kamar.status_kamar = 'Tersedia'
+                previous_kamar.save()
+
             mahasiswa.nama = nama
             mahasiswa.jurusan = jurusan
             mahasiswa.no_telepon = no_telepon
@@ -248,6 +276,12 @@ def postUpdateMahasiswa(request):
             mahasiswa.tanggal_lahir = tanggal_lahir
             mahasiswa.nomor_kamar = kamar
             mahasiswa.save()
+
+            # Update the nim field of the associated Kamars instance
+            if mahasiswa.nomor_kamar:
+                mahasiswa.nomor_kamar.nim = mahasiswa
+                mahasiswa.nomor_kamar.status_kamar = 'Terpakai'
+                mahasiswa.nomor_kamar.save()
 
             messages.success(
                 request, 'Data mahasiswa dengan NIM {} berhasil diperbarui'.format(nim))
@@ -270,8 +304,12 @@ def hapusMahasiswa(request, nim):
 
 @login_required
 def postHapusMahasiswa(request, nim):
-    mahasiswa = Mahasiswas.objects.get(nim=nim)
-    mahasiswa.delete()
+    try:
+        mahasiswa = Mahasiswas.objects.get(nim=nim)
+        mahasiswa.delete()
+        messages.success(request, 'Mahasiswa dengan NIM {} berhasil dihapus.'.format(nim))
+    except Mahasiswas.DoesNotExist:
+        messages.error(request, 'Mahasiswa dengan NIM {} tidak ditemukan.'.format(nim))
     return redirect('mahasiswa')
 
 # View Pengelola
@@ -285,7 +323,7 @@ def indexPengelola(request):
     context = {
         'data_pengelola': data_pengelola
     }
-    return render(request, 'pengelola/profil.html', context)
+    return render(request, 'pengelola/index.html', context)
 
 
 @login_required
@@ -321,25 +359,36 @@ def postPengelola(request):
         messages.error(
             request, 'Terjadi kesalahan saat menyimpan data pengelola')
         return redirect('tambahPengelola')
+    
+@login_required
+def updatePengelola(request):
+    pengelola = Pengelolas.objects.get(user=request.user)
+    return render(request, 'pengelola/formUpdate.html', {'pengelola': pengelola})
 
 @login_required
 def postUpdatePengelola(request):
-    id_pengelola = request.POST.get('id_pengelola')
     nama = request.POST.get('nama')
     tanggal_lahir_str = request.POST.get('tanggal_lahir')
     tanggal_lahir = datetime.strptime(tanggal_lahir_str, '%Y-%m-%d').date()
     alamat = request.POST.get('alamat')
     no_telepon = request.POST.get('no_telepon')
+    nik = request.POST.get('nik')
+    tempat_lahir = request.POST.get('tempat_lahir')
+    jenis_kelamin = request.POST.get('jenis_kelamin')
 
-    pengelola = Pengelolas.objects.get(id_pengelola=id_pengelola)
+    pengelola = Pengelolas.objects.get(user=request.user)
 
     pengelola.nama = nama
     pengelola.tanggal_lahir = tanggal_lahir
     pengelola.alamat = alamat
     pengelola.no_telepon = no_telepon
+    pengelola.nik = nik
+    pengelola.tempat_lahir = tempat_lahir
+    pengelola.jenis_kelamin = jenis_kelamin
 
     pengelola.save()
     return redirect('pengelola')
+
 
 @login_required
 def hapusPengelola(request, id_pengelola):
@@ -355,13 +404,7 @@ def postHapusPengelola(request, id_pengelola):
     pengelola.delete()
     return redirect('pengelola')
 
-@login_required
-def updatePengelola(request):
-    # data_pengelola = Pengelolas.objects.get(id_pengelola=id_pengelola)
-    # context = {
-    #     'data_pengelola': data_pengelola
-    # }
-    return render(request, 'pengelola/formUpdate.html')
+
 
 # View Pendaftaran
 
@@ -412,16 +455,16 @@ def postUpdatePendaftaran(request):
     pendaftaran.tanggal_daftar = tanggal_daftar
     pendaftaran.tanggal_masuk = tanggal_masuk if tanggal_masuk else None
     pendaftaran.tanggal_keluar = tanggal_keluar if tanggal_keluar else None
-    
 
     if bukti_bayar is not None:
         # Check if a new file is provided
         if pendaftaran.bukti_bayar:
             # If the existing file exists, delete it
-            Pendaftarans.delete(pendaftaran.bukti_bayar.name)
+            pendaftaran.bukti_bayar.delete()
 
-        # Save the new file
-        pendaftaran.bukti_bayar.save(bukti_bayar.name, bukti_bayar)
+        # Generate a unique filename for the uploaded file
+        filename = f"{uuid.uuid4().hex}_{bukti_bayar.name}"
+        pendaftaran.bukti_bayar.save(filename, bukti_bayar)
     else:
         # If no new file is provided, keep the existing file
         bukti_bayar_existing = pendaftaran.bukti_bayar
@@ -431,25 +474,15 @@ def postUpdatePendaftaran(request):
 
     return redirect('pendaftaran')
 
+
 # View Kamar
 
 
 @login_required
 def indexKamar(request):
-    data_kamar = Kamars.objects.all().prefetch_related('mahasiswas_set').order_by('nomor_kamar')
-
+    data_kamar = Kamars.objects.all().order_by('nomor_kamar')
     for kamar in data_kamar:
-        is_terpakai = False
-        for mahasiswa in kamar.mahasiswas_set.all():
-            if mahasiswa.nomor_kamar == kamar:
-                is_terpakai = True
-                break
-        if is_terpakai:
-            kamar.status_kamar = 'Terpakai'
-        else:
-            kamar.status_kamar = 'Tersedia'
-        kamar.save()
-
+        kamar.status_kamar = 'Terpakai' if kamar.nim else 'Tersedia'
     context = {
         'data_kamar': data_kamar,
     }
@@ -457,11 +490,16 @@ def indexKamar(request):
     return render(request, 'kamar/index.html', context)
 
 
+
 @login_required
 def updateKamar(request, nomor_kamar):
     data_kamar = Kamars.objects.get(nomor_kamar=nomor_kamar)
+    data_mahasiswa = data_kamar.nim
+    all_mahasiswa = Mahasiswas.objects.all()  # Retrieve all Mahasiswas
     context = {
-        'data_kamar': data_kamar
+        'data_kamar': data_kamar,
+        'data_mahasiswa': data_mahasiswa,
+        'all_mahasiswa': all_mahasiswa
     }
 
     return render(request, 'kamar/formUpdate.html', context)
@@ -470,14 +508,40 @@ def updateKamar(request, nomor_kamar):
 @login_required
 def postUpdateKamar(request):
     nomor_kamar = request.POST.get('nomor_kamar')
-    status_kamar = request.POST.get('status_kamar')
+    nim = request.POST.get('mahasiswa')
+
     data_kamar = Kamars.objects.get(nomor_kamar=nomor_kamar)
 
-    data_kamar.status_kamar = status_kamar
+    if nim:
+        mahasiswa = Mahasiswas.objects.get(nim=nim)
+
+        # Check if the mahasiswa is already assigned to a different kamar
+        if mahasiswa.nomor_kamar and mahasiswa.nomor_kamar != data_kamar:
+            previous_kamar = mahasiswa.nomor_kamar
+            previous_kamar.nim = None
+            previous_kamar.status_kamar = 'Tersedia'
+            previous_kamar.save()
+
+        mahasiswa.nomor_kamar = data_kamar
+        mahasiswa.save()
+
+        data_kamar.nim = mahasiswa
+        data_kamar.status_kamar = 'Terpakai'
+    else:
+        # Remove the association with any mahasiswa
+        if data_kamar.nim:
+            data_kamar.nim = None
+
+        data_kamar.status_kamar = 'Tersedia'
+
+        # Set the nomor_kamar field of the Mahasiswas object to None
+        Mahasiswas.objects.filter(nomor_kamar=data_kamar).update(nomor_kamar=None)
 
     data_kamar.save()
 
     return redirect('kamar')
+
+
 
 
 @login_required

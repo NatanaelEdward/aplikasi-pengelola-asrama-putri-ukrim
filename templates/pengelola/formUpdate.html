@@ -5,40 +5,39 @@
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="pt-2 card-label">Data Pengelola</h2>
-                
             </div>
         </div>
         <div class="card-body">
-            <form method="POST" action="#">
+            <form method="POST" action="{% url 'postUpdatePengelola' %}">
                 {% csrf_token %}
-                <input class="form-control "
-                       value=""
+                <input class="form-control"
+                       value="{{ pengelola.id_pengelola }}"
                        type="hidden"
                        name="id_pengelola"
                        id="id_pengelola" />
                 <div class="form-group">
-                    <label for="">Nama</label>
-                    <input class="form-control "
-                           value=""
+                    <label for="nama">Nama</label>
+                    <input class="form-control"
+                           value="{{ pengelola.nama }}"
                            type="text"
                            name="nama"
                            id="nama" />
                 </div>
                 <div class="form-group">
-                    <label for="tanggal_lahir">NIK</label>
+                    <label for="nik">NIK</label>
                     <input class="form-control"
                            type="text"
-                           name="tanggal_lahir"
-                           id="tanggal_lahir"
-                           value="">
+                           name="nik"
+                           id="nik"
+                           value="{{ pengelola.nik }}">
                 </div>
                 <div class="form-group">
-                    <label for="">Tempat Lahir</label>
-                    <input class="form-control "
-                           value=""
+                    <label for="tempat_lahir">Tempat Lahir</label>
+                    <input class="form-control"
+                           value="{{ pengelola.tempat_lahir }}"
                            type="text"
-                           name="alamat"
-                           id="alamat" />
+                           name="tempat_lahir"
+                           id="tempat_lahir" />
                 </div>
                 <div class="form-group">
                     <label for="tanggal_lahir">Tanggal Lahir</label>
@@ -46,35 +45,34 @@
                            type="date"
                            name="tanggal_lahir"
                            id="tanggal_lahir"
-                           value="">
+                           value="{{ pengelola.tanggal_lahir|date:'Y-m-d' }}">
                 </div>
                 <div class="form-group">
-                    <label for="">Jenis Kelamin</label>
-                    <select class="form-control">
-                        <option value="" disabled selected>Laki-laki</option>
-                        <option value="Laki-laki"
-                        </option>
+                    <label for="jenis_kelamin">Jenis Kelamin</label>
+                    <select class="form-control" name="jenis_kelamin" id="jenis_kelamin">
+                        <option value="Laki-laki" {% if pengelola.jenis_kelamin == 'Laki-laki' %}selected{% endif %}>Laki-laki</option>
+                        <option value="Perempuan" {% if pengelola.jenis_kelamin == 'Perempuan' %}selected{% endif %}>Perempuan</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="">Alamat</label>
-                    <input class="form-control "
-                           value=""
+                    <label for="alamat">Alamat</label>
+                    <input class="form-control"
+                           value="{{ pengelola.alamat }}"
                            type="text"
                            name="alamat"
                            id="alamat" />
                 </div>
                 <div class="form-group">
-                    <label for="">Nomor Telepon</label>
-                    <input class="form-control "
-                           value=""
+                    <label for="no_telepon">Nomor Telepon</label>
+                    <input class="form-control"
+                           value="{{ pengelola.no_telepon }}"
                            type="text"
                            name="no_telepon"
                            id="no_telepon" />
                 </div>
                 <button class="btn btn-primary"
                         type="button"
-                        onclick="location.href='#'">
+                        onclick="location.href='{% url 'pengelola' %}'">
                     <i class="fas fa-angle-left"></i> Kembali
                 </button>
                 <button class="btn btn-success" type="submit">

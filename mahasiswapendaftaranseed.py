@@ -7,7 +7,7 @@ from faker import Faker
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'percobaan3.settings')
 django.setup()
 
-from app.models import Mahasiswas, Kamars,Pendaftarans  # Replace with your actual models
+from app.models import Mahasiswas, Kamars, Pendaftarans  # Replace with your actual models
 
 fake = Faker()
 
@@ -30,13 +30,9 @@ def seed_database(num_records):
         tanggal_lahir = fake.date_of_birth(minimum_age=18, maximum_age=30)
         nomor_kamar = kamars_sample[i]
 
-        # Update the status_kamar of the selected nomor_kamar to 'Terpakai'
-        nomor_kamar.status_kamar = 'Terpakai'
-        nomor_kamar.save()
-
         # Create an instance of the Mahasiswas model and populate its fields with fake data
         record = Mahasiswas(
-            nim=str(nim),
+            nim=nim,
             nama=nama,
             jurusan=jurusan,
             no_telepon=no_telepon,
@@ -48,10 +44,15 @@ def seed_database(num_records):
 
         # Create a Pendaftaran object for the Mahasiswa
         pendaftaran = Pendaftarans(
-            tanggal_daftar=datetime.datetime.now(),
-            nim=record
+            tanggal_daftar=datetime.date.today(),
+            nim=record,
         )
         pendaftaran.save()
+
+        # Update the nim field of the associated nomor_kamar to the newly created Mahasiswa
+        nomor_kamar.nim = record
+        nomor_kamar.status_kamar = 'Terpakai'
+        nomor_kamar.save()
 
 if __name__ == '__main__':
     num_records = 10  # Specify the number of records you want to create
