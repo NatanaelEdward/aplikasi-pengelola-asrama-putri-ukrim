@@ -85,9 +85,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_percobaan2',
         'USER': 'root',
-        'PASSWORD': 'matamata',
+        'PASSWORD': '',
         'HOST' : 'localhost',
-        'PORT' : '3307'
+        'PORT' : '3306'
     }
 }
 
